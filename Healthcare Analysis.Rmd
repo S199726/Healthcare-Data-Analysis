@@ -1,0 +1,146 @@
+---
+title: "Healthcare Data Analysis"
+author: "Sharon Kioni"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+
+```{r}
+healthcare_dataset = read.csv("healthcare_dataset.csv")
+
+```
+
+## 1. Print the Structure of the dataset
+
+```{r}
+str(healthcare_dataset)
+```
+## 2. List the variables in the dataset
+```{r}
+names(healthcare_dataset)
+```
+## 3. Print the top 15 rows of the dataset
+```{r}
+head(healthcare_dataset,15)
+```
+## 4. Write a user defined function using a variable in the dataset
+```{r}
+average_age = function(age)(mean(age, na.rm = TRUE))
+average_age(healthcare_dataset$Age)
+```
+## 5. Use data manipulation techniques and filter rows based on any logical criteria that exist in the dataset
+```{r}
+filtered_healthcare = subset(healthcare_dataset, Age >60 & Billing.Amount >30000,select = c(Name, Age, Medical.Condition, Billing.Amount))
+head(filtered_healthcare,15)
+```
+
+## 6. Identify the dependent and independent variables and use reshaping techniques and create a new data frame by joining those variables from your dataset
+```{r}
+independent = healthcare_dataset[, c("Name", "Age", "Medical.Condition")]
+dependent = healthcare_dataset[, c("Name", "Age", "Billing.Amount")]
+joined_healthcare = merge(independent, dependent, by ="Name")
+head(joined_healthcare,15)
+```
+
+## 7. Remove missing values in the dataset
+```{r}
+sum(is.na(healthcare_dataset))
+```
+#Clean healthcare dateset
+```{r}
+clean_healthcare = na.omit(healthcare_dataset)
+```
+## 8. Identify and remove duplicated data in the dataset
+```{r}
+sum(duplicated(healthcare_dataset))
+```
+#Remove duplicate data
+```{r}
+healthcare_unique = unique(healthcare_dataset)
+```
+
+#check if the duplicates have been removed
+```{r}
+sum(duplicated(healthcare_unique))
+```
+## 9. Reorder multiple rows in descending order
+```{r}
+sorted_healthcare = healthcare_unique[order(-healthcare_unique$Age,-healthcare_unique$Billing.Amount),]
+head(sorted_healthcare,15)
+```
+
+## 10. Rename some of the column names in the dataset
+```{r}
+colnames(healthcare_dataset)
+```
+#Rename
+```{r}
+renamed_healthcare = sorted_healthcare
+names(renamed_healthcare)[2] = "Patient_Age"
+names(renamed_healthcare)[5] = "Diagnosis"
+names(renamed_healthcare)[10] = "Medical_Bill"
+head(renamed_healthcare,15)
+```
+
+## 11.	Add new variables in your data frame by using a mathematical function (for e.g. – multiply an existing column by 2 and add it as a new variable to your data frame
+```{r}
+renamed_healthcare$Double_Bill = renamed_healthcare$Medical_Bill * 2
+head(renamed_healthcare[, c("Medical_Bill", "Double_Bill")], 15)
+```
+
+## 12.	Create a training set using random number generator engine.
+```{r}
+library(dplyr)
+set.seed(1234)
+Training_healthcare = renamed_healthcare %>% sample_frac(0.80, rep = FALSE)
+Training_healthcare = as.data.frame(Training_healthcare)
+head(Training_healthcare, 15)
+```
+
+## 12.	Print the summary statistics of the dataset.
+```{r}
+summary(Training_healthcare)
+```
+
+## 13.	Use any of the numerical variables from the dataset and perform the following statistical functions(Mean, Median, Mode,Range.
+
+#mean
+```{r}
+mean(Training_healthcare$Patient_Age)
+```
+#median
+```{r}
+median(Training_healthcare$Patient_Age)
+```
+#mode
+```{r}
+Age_frequency = table(Training_healthcare$Patient_Age)
+names(Age_frequency)[which.max(Age_frequency)]
+```
+#Range
+```{r}
+range(Training_healthcare$Patient_Age)
+```
+
+## 14.	Plot a scatter plot for any 2 variables in the dataset.
+```{r}
+ggplot(data = Training_healthcare, aes(x= Patient_Age, y= Medical_Bill)) + geom_point(color = "palegreen")
+```
+
+## 15.	Plot a bar plot for any 2 variables in the dataset.
+```{r}
+ggplot(data = Training_healthcare, aes(x= Diagnosis)) + geom_bar(color = "palegreen4")
+```
+
+## 16.	Find the correlation between any 2 variables in the dataset by applying Pearson correlation.
+```{r}
+cor(Training_healthcare$Patient_Age,Training_healthcare$Medical_Bill,method = "pearson")
+```
+
